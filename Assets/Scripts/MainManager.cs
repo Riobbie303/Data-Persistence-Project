@@ -15,13 +15,15 @@ public class MainManager : MonoBehaviour
     
     private bool m_Started = false;
     private int m_Points;
+    private int maxScore;
     
-    private bool m_GameOver = false;
+    static public bool m_GameOver = false;
 
-    
-    // Start is called before the first frame update
     void Start()
     {
+        ScoreKeeper.Instance.LoadScore();
+        maxScore = ScoreKeeper.Instance.score;
+
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -72,5 +74,11 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        if (maxScore < m_Points)
+        {
+            maxScore = m_Points;
+            ScoreKeeper.Instance.score = maxScore;
+            ScoreKeeper.Instance.SaveScore();
+        }
     }
 }
