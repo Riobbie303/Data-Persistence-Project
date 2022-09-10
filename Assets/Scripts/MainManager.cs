@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.IO;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class MainManager : MonoBehaviour
 {
@@ -10,23 +14,31 @@ public class MainManager : MonoBehaviour
     public int LineCount = 6;
     public Rigidbody Ball;
 
-    public Text ScoreText;
+    public Text currentScoreText;
+    public Text bestScoreText;
     public GameObject GameOverText;
-    
+
     private bool m_Started = false;
     private int m_Points;
-    private int maxScore;
-    
+
+
     static public bool m_GameOver = false;
+    static public int bestScore;
+    static public string bestPlayer;
+
+    private void Awake()
+    {
+        ScoreKeeper.Instance.LoadGameRank();
+        bestPlayer = ScoreKeeper.Instance.bestPlayer;
+        bestScore = ScoreKeeper.Instance.bestScore;
+    }
 
     void Start()
     {
-        maxScore = ScoreKeeper.Instance.score;
-
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
-        
-        int[] pointCountArray = new [] {1,1,2,2,5,5};
+
+        int[] pointCountArray = new[] { 1, 1, 2, 2, 5, 5 };
         for (int i = 0; i < LineCount; ++i)
         {
             for (int x = 0; x < perLine; ++x)
@@ -37,6 +49,7 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+        SetBestPlayer();
     }
 
     private void Update()
@@ -66,18 +79,52 @@ public class MainManager : MonoBehaviour
     void AddPoint(int point)
     {
         m_Points += point;
-        ScoreText.text = $"Score : {m_Points}";
+        currentScoreText.text = $"Score : {m_Points}";
     }
 
     public void GameOver()
     {
         m_GameOver = true;
+        CheckBestPlayer();
         GameOverText.SetActive(true);
-        if (maxScore < m_Points)
+    }
+
+    private void CheckBestPlayer()
+    {
+
+        if (m_Points > bestScore)
         {
-            maxScore = m_Points;
-            ScoreKeeper.Instance.score = maxScore;
-            ScoreKeeper.Instance.SaveScore();
+            bestPlayer = ScoreKeeper.Instance.currentPlayer;
+            bestScore = m_Points;
+
+            bestScoreText.text = $"Best Score - {bestPlayer.ToUpper()}: {bestScore}";
+            ScoreKeeper.Instance.SaveGameRank(bestPlayer, bestScore);
         }
+    }
+
+    private void SetBestPlayer()
+    {
+        if (bestPlayer == null && bestScore == 0)
+        {
+            bestScoreText.text = "";
+        }
+        else
+        {
+            bestScoreText.text = $"Best Score - {bestPlayer.ToUpper()}: {bestScore}";
+        }
+    }
+
+    public void ChangeScene()
+    {
+        SceneManager.LoadScene(0);
+    }
+
+    public void Exit()
+    {
+#if UNITY_EDITOR
+        EditorApplication.ExitPlaymode();
+#else
+        Application.Quit(); // original code to quit Unity player
+#endif
     }
 }

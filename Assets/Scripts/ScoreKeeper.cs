@@ -6,8 +6,9 @@ using System.IO;
 public class ScoreKeeper : MonoBehaviour
 {
     public static ScoreKeeper Instance;
-    public string playerName;
-    public int score;
+    public string currentPlayer;
+    public int bestScore;
+    public string bestPlayer;
 
     public void Awake()
     {
@@ -24,32 +25,31 @@ public class ScoreKeeper : MonoBehaviour
     [System.Serializable]
     class SaveData
     {
-        public string playerName;
-        public int score;
+        public int savedScore;
+        public string savedPlayer;
     }
 
-    public void SaveScore()
+    public void SaveGameRank(string bestPlayer, int bestScore)
     {
         SaveData data = new SaveData();
-        data.playerName = playerName;
-        data.score = score;
+
+        data.savedPlayer = bestPlayer;
+        data.savedScore = bestScore;
 
         string json = JsonUtility.ToJson(data);
-        Debug.Log(json);
-
         File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
     }
 
-    public void LoadScore()
+    public void LoadGameRank()
     {
         string path = Application.persistentDataPath + "/savefile.json";
+
         if (File.Exists(path))
         {
             string json = File.ReadAllText(path);
             SaveData data = JsonUtility.FromJson<SaveData>(json);
-            playerName = data.playerName;
-            score = data.score;
-            Debug.Log(json);
+            bestPlayer = data.savedPlayer;
+            bestScore = data.savedScore;
         }
     }
 }

@@ -10,34 +10,23 @@ using UnityEditor;
 
 public class UIHandlerMenu : MonoBehaviour
 {
+    public string playerName;
     public TMP_InputField inputField;
-    public GameObject menuScore;
-    public TMP_Text menuScoreText;
+    public TMP_Text highscoreText;
     public Button playButton;
-    private int playerScore;
 
-    public void Awake()
+    public void Start()
     {
-        SetObjects(false);
+        playButton.interactable = false;
+        ScoreKeeper.Instance.LoadGameRank();
+        highscoreText.text = $"Highscore - {ScoreKeeper.Instance.bestPlayer.ToUpper()}: {ScoreKeeper.Instance.bestScore}";
     }
 
     public void SaveText()
     {
-        SetObjects(true);
-        LoadScores();
-    }
-
-    private void SetObjects(bool switchIt)
-    {
-        menuScore.SetActive(switchIt);
-        playButton.interactable = switchIt;
-    }
-
-    private void LoadScores()
-    {
-        ScoreKeeper.Instance.playerName = inputField.text;
-        ScoreKeeper.Instance.score = playerScore;
-        menuScoreText.text = $"High Score : {playerScore}";
+        playButton.interactable = true;
+        playerName = inputField.text;
+        ScoreKeeper.Instance.currentPlayer = playerName;
     }
 
     public void ChangeScene()
