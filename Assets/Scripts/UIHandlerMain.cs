@@ -22,6 +22,7 @@ public class UIHandlerMain : MonoBehaviour
     public void LoadUser()
     {
         playerName = ScoreKeeper.Instance.playerName;
+        playerScore = ScoreKeeper.Instance.score;
         highScore.text = $"Best Score : {playerName.ToUpper()} : {playerScore}";
     }
 

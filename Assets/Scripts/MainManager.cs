@@ -21,7 +21,6 @@ public class MainManager : MonoBehaviour
 
     void Start()
     {
-        ScoreKeeper.Instance.LoadScore();
         maxScore = ScoreKeeper.Instance.score;
 
         const float step = 0.6f;
